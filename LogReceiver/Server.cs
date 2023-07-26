@@ -67,10 +67,19 @@ namespace LogReceiver
 			}
 		}
 
+		enum LogType
+        {
+			Log,
+			Warning,
+			Error,
+			Exception,
+			Assert
+        }
+
 		private void Receive(TcpClient client)
 		{
 			Console.WriteLine("Got connection from " + client.Client.RemoteEndPoint.ToString());
-			string path = Path.Combine("Logs", $"log_{DateTime.Now:dd-MM-yyyy_hh-mm-ss}.txt");
+			string path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "Logs", $"log_{DateTime.Now:dd-MM-yyyy_hh-mm-ss}.txt");
 
 			using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read))
 			using (StreamWriter writer = new StreamWriter(fs)) 
@@ -90,10 +99,20 @@ namespace LogReceiver
 
 						if (echo)
 						{
-							var clr = Console.ForegroundColor;
-							Console.ForegroundColor = ConsoleColor.DarkGray;
-							Console.WriteLine(line);
+							ConsoleColor clr = ConsoleColor.DarkGray;
+							if (line.Contains("[Warning]"))
+                            {
+								clr = ConsoleColor.DarkYellow;
+                            }
+							else if (line.Contains("[Error]") || line.Contains("[Exception]"))
+                            {
+								clr = ConsoleColor.Red;
+                            }
+
+							var origClr = Console.ForegroundColor;
 							Console.ForegroundColor = clr;
+							Console.WriteLine(line);
+							Console.ForegroundColor = origClr;
 						}
 					}
 
@@ -114,7 +133,7 @@ namespace LogReceiver
 		private static void ConsoleError(string str)
 		{
 			var clr = Console.ForegroundColor;
-			Console.ForegroundColor = ConsoleColor.Red;
+			Console.ForegroundColor = ConsoleColor.DarkRed;
 			Console.WriteLine(str);
 			Console.ForegroundColor = clr;
 		}
