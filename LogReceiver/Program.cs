@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 
 namespace LogReceiver
 {
@@ -21,6 +22,8 @@ namespace LogReceiver
 				port = portParsed;
 			}
 
+			Console.WriteLine($"========================== LogReceiver v{typeof(Program).Assembly.GetName().Version} ==========================");
+
 			Server server = new Server(port, !args.Contains("--noecho"), !args.Contains("--nosave"), args.Contains("--here"));
 			server.Start();
 
@@ -29,7 +32,7 @@ namespace LogReceiver
 				isRunning = false;
 			};
 
-			while (isRunning) { }
+			while (isRunning) { Thread.Sleep(1000); }
 
 			server.Stop();
 
