@@ -63,11 +63,11 @@ public class LogSender : MonoBehaviour
                 || ((type == LogType.Error || type == LogType.Exception) && sendStacktrace.HasFlag(LogLevel.Error))
                 ))
             {
-                logQueue.Add($"[{DateTime.Now:g}][{type}] {condition}\n{stackTrace}");
+                logQueue.Add($"[{DateTime.Now:HH:mm:ss.fff}][{type}] {condition}\n{stackTrace}");
             }
             else
             {
-                logQueue.Add($"[{DateTime.Now:g}][{type}] {condition}");
+                logQueue.Add($"[{DateTime.Now:HH:mm:ss.fff}][{type}] {condition}");
             }
         }
     }
