@@ -22,7 +22,9 @@ namespace LogReceiver
 				port = portParsed;
 			}
 
-			Console.WriteLine($"========================== LogReceiver v{typeof(Program).Assembly.GetName().Version} ==========================");
+			bool isInShell = IsInShell();
+
+			PrintHeader();
 
 			Server server = new Server(port, !args.Contains("--noecho"), !args.Contains("--nosave"), args.Contains("--here"));
 			server.Start();
@@ -32,18 +34,36 @@ namespace LogReceiver
 				isRunning = false;
 			};
 
-			while (isRunning) { Thread.Sleep(1000); }
+			while (isRunning) 
+			{
+				if (isInShell)
+                {
+					var key = Console.ReadKey(true);
+					if (key.Modifiers.HasFlag(ConsoleModifiers.Control) && key.Key == ConsoleKey.R)
+                    {
+						Console.Clear();
+						PrintHeader();
+						Console.WriteLine("Cleared console!");
+					}
+					Thread.Sleep(100);
+				}
+				else Thread.Sleep(1000);
+			}
 
 			server.Stop();
 
-			if (!IsInShell())
+			if (!isInShell)
 				Console.ReadKey();
 		}
 
+		static void PrintHeader() => Console.WriteLine($"========================== LogReceiver v{typeof(Program).Assembly.GetName().Version} ==========================");
+
 		static void PrintHelp()
         {
+			PrintHeader();
 			Console.WriteLine("Usage: LogReceiver [--noecho] [--nosave] [--here] <port>");
 			Console.WriteLine("    If no args are supplied default port is 999, echo and save is on and logs are saved to app directory");
+			Console.WriteLine("    - Press Ctrl+R to clear console.");
 			Console.WriteLine("");
 			Console.WriteLine("    --noecho   - Do not print logs");
 			Console.WriteLine("    --nosave   - Do not save logs to file");
